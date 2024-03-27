@@ -31,8 +31,8 @@ class ModelTrainer:
             'GaussianNB':GaussianNB(),
             'XGBClassifier':XGBClassifier(objective='binary:logistic'),
             'SVC':SVC(),
-            'RandomForest':RandomForestClassifier(),
-            'GradientBoosting': GradientBoostingClassifier()
+            'RandomForestClassifier':RandomForestClassifier(),
+            'GradientBoostingClassifier': GradientBoostingClassifier()
         }
 
     def evaluate_models(self,X,y,models):
