@@ -3,7 +3,8 @@ import os,sys
 
 from src.exception import CustomException
 from src.logger import logging
-from src.pipeline import train_pipeline,predict_pipeline
+from src.pipeline.train_pipeline import TrainingPipeline
+from src.pipeline.predict_pipeline import PredictionPipeline
 
 app = Flask(__name__)
 
@@ -17,14 +18,16 @@ def train_route():
     train_pipeline.run_pipeline()
     return 'Training Completed'
 
-@app.route('/predict')
-def predict_route(method=["GET","POST"]):
+@app.route('/predict',method=["GET","POST"])
+def upload():
     try:
         if request.method == "POST":
             predict_pipeline = PredictionPipeline()
             predict_pipeline.run_pipeline()
             logging.info("prediction done and downloading csv")
-            return send_file()
+            return send_file(prediction_file_detail.prediction_file_path,
+                            download_name= prediction_file_detail.prediction_file_name,
+                            as_attachment= True)
 
         else:
             return render_template('upload_file.html')

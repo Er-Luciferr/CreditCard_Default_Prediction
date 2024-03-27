@@ -1,5 +1,7 @@
 import os,sys
-from src.components import data_ingestion,data_transformation,model_trainer
+from src.components.data_ingestion import DataIngestion
+from src.components.data_transformation import DataTransformation
+from src.components.model_trainer import ModelTrainer
 from src.exception import CustomException 
 from src.logger import logging
 from src.utils.utils import MainUtils
@@ -18,7 +20,7 @@ class TrainingPipeline:
 
     def start_data_transformation(self,raw_data_dir):
         try:
-            data_transformation = DataTransformation(raw_data_dir)
+            data_transformation = DataTransformation(raw_data_dir=raw_data_dir)
             train_arr,test_arr,preprocessor_path = data_transformation.initiate_data_transformation()
             return train_arr,test_arr,preprocessor_path
 

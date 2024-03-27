@@ -20,7 +20,7 @@ from src.constant import *
 @dataclass
 class ModelTrainingConfig:
     trained_model_path = os.path.join(artifact_folder,'model.pkl')
-    expected_accuracy = 0.45
+    expected_accuracy = 0.60
     model_config_file_path = os.path.join('config','model.yaml')
 
 class ModelTrainer:
@@ -36,15 +36,16 @@ class ModelTrainer:
         }
 
     def evaluate_models(self,X,y,models):
-        try:
+        try:            
             X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.33,random_state=0)
             report = {}
 
             for i in range(len(list(models))):
                 model = list(models.values())[i]
+                logging.info(y_train)
                 model.fit(X_train,y_train)
-                y_train_pred = model.predict(y_train)
-                y_test_pred = model.predict(y_test)
+                y_train_pred = model.predict(X_train)
+                y_test_pred = model.predict(X_test)
                 train_model_score = accuracy_score(y_train,y_train_pred)
                 test_model_score = accuracy_score(y_test,y_test_pred)
                 report[list(models.keys())[i]] = test_model_score
@@ -54,22 +55,22 @@ class ModelTrainer:
         except Exception as e:
             raise CustomException(e,sys)
 
-    def get_best_model(self,X_train:np.array,X_test:np.array,y_train:np.array,y_test:np.array):
+    def get_best_model(self,X_train:np.array,y_train:np.array,X_test:np.array,y_test:np.array):
         try:
             #Try to give X & y directly in next version
             model_report:dict = self.evaluate_models(
                 X_train = X_train,
-                X_test = X_test,
                 y_train = y_train,
+                X_test = X_test,                
                 y_test = y_test,
                 models = self.models
             )
             print(model_report)
             best_model_score = max(sorted(model_report.values()))
             ## To get best model name from dict
-            best_model_name = list(model_report.keys())[model_report.values().index(best_model_score)]
+            best_model_name = list(model_report.keys())[list(model_report.values().index(best_model_score))]
             best_model_object = self.models[best_model_name]
-            return best_model_name,best_model_score,best_model_object
+            return best_model_name,best_model_object,best_model_score
 
         except Exception as e:
             raise CustomException(e,sys)
@@ -107,15 +108,15 @@ class ModelTrainer:
             best_model = self.finetune_best_model(best_model_name=best_model_name,best_model_object=best_model,X_train=X_train,y_train=y_train)
             best_model.fit(X_train,y_train)
             y_pred = best_model.predict(X_test)
-            best_model_score = accuracy_score(y_test=y_test,y_pred=y_pred)
+            best_model_score = accuracy_score(y_true=y_test,y_pred=y_pred)
             print("Best model name: {0} and score {1}".format(best_model_name,best_model_score))
             if best_model_score < 0.6:
                 raise Exception('No model found with accuracy greater than the threshold')
-                logging.info(f"Best found model on both training and testing dataset")
-                logging.info(f"Saving model at path: {self.model_trainer_config.trained_model_path}")
-                os.makedirs(os.path.dirname(self.model_trainer_config.trained_model_path), exist_ok=True)
-                self.utils.save_object(file_path=self.model_trainer_config.trained_model_path, obj=best_model)
-                return best_model_score
+            logging.info(f"Best found model on both training and testing dataset")
+            logging.info(f"Saving model at path: {self.model_trainer_config.trained_model_path}")
+            os.makedirs(os.path.dirname(self.model_trainer_config.trained_model_path), exist_ok=True)
+            self.utils.save_object(file_path=self.model_trainer_config.trained_model_path, obj=best_model)
+            return self.model_trainer_config.trained_model_path
 
         except Exception as e:
             raise CustomException(e,sys)

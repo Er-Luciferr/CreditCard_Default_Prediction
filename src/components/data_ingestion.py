@@ -12,7 +12,10 @@ from dataclasses import dataclass
 
 @dataclass
 class DataIngestionConfig:
-    raw_file_path:str = os.path.join(artifact_folder,"raw.csv")
+    raw_data_dir:str = os.path.join(artifact_folder,"raw.csv")
+    #data_ingestion_dir: str = os.path.join(artifact_folder)
+    #raw_data_path: str = os.path.join(data_ingestion_dir,"card_data.csv")
+
 
 class DataIngestion:
     def __init__(self):
@@ -26,11 +29,11 @@ class DataIngestion:
             df = pd.read_csv(os.path.join("notebook/data",'raw_data.csv'))
             logging.info('dataset read as pandas dataframe')
 
-            os.makedirs(os.path.dirname(self.data_ingestion_config.raw_file_path),exist_ok=True)
-            df.to_csv(self.data_ingestion_config.raw_file_path , index=False)
+            os.makedirs(os.path.dirname(self.data_ingestion_config.raw_data_dir),exist_ok=True)
+            df.to_csv(self.data_ingestion_config.raw_data_dir , index=False)
             logging.info('Raw Data is created')
             
-            return (self.data_ingestion_config.raw_file_path)
+            return (self.data_ingestion_config.raw_data_dir)
             
             
 
