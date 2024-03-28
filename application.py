@@ -18,12 +18,12 @@ def train_route():
     train_pipeline.run_pipeline()
     return 'Training Completed'
 
-@app.route('/predict',method=["GET","POST"])
+@app.route('/predict',methods=["GET","POST"])
 def upload():
     try:
         if request.method == "POST":
-            predict_pipeline = PredictionPipeline()
-            predict_pipeline.run_pipeline()
+            predict_pipeline = PredictionPipeline(request)
+            prediction_file_detail = predict_pipeline.run_pipeline()
             logging.info("prediction done and downloading csv")
             return send_file(prediction_file_detail.prediction_file_path,
                             download_name= prediction_file_detail.prediction_file_name,
